@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 工作流创作首页 · 案例编辑版</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="cases.css"><link rel="icon" href="data:,">
+<script src="workflows.js" defer></script><script src="cases.js" defer></script><script src="composer.js" defer></script></head>
+<body>
+<div class="page">
+  <div class="title">开启你的设计！</div>
+
+  <section class="composer" id="composer">
+    <div class="asset-strip" id="assetStrip"></div>
+    <div class="composer-main">
+      <label class="upload-main" title="上传图片或视频">＋<input id="topUpload" type="file" accept="image/*,video/*" multiple hidden></label>
+      <textarea id="prompt" aria-label="创作提示词" placeholder="输入想法、脚本或上传参考；点击下方工作流可自动填入模板提示词"></textarea>
+    </div>
+    <div class="composer-bottom">
+      <div class="left-tools">
+        <div class="tool mode" id="modeBtn">
+          <span id="modeLabel">Agent 模式</span>⌄
+          <div class="mode-menu">
+            <div class="mode-item active" data-mode="agent">Agent 模式 <span>✓</span></div>
+            <div class="mode-item" data-mode="image">图片生成</div>
+            <div class="mode-item" data-mode="video">视频生成</div>
+          </div>
+        </div>
+        <div class="auto-wrap"><button class="tool">☷ 自动</button>
+<div class="auto-panel" id="autoPanel">
+  <div class="auto-section">
+    <div class="auto-label">比例</div>
+    <div class="ratio-grid" id="ratioGrid">
+      <button class="ratio-option active" data-ratio="自适应"><span class="ratio-icon"></span>自适应</button>
+      <button class="ratio-option" data-ratio="1:1"><span class="ratio-icon"></span>1:1</button>
+      <button class="ratio-option" data-ratio="2:3"><span class="ratio-icon"></span>2:3</button>
+      <button class="ratio-option" data-ratio="3:2"><span class="ratio-icon"></span>3:2</button>
+      <button class="ratio-option" data-ratio="4:5"><span class="ratio-icon"></span>4:5</button>
+      <button class="ratio-option" data-ratio="5:4"><span class="ratio-icon"></span>5:4</button>
+      <button class="ratio-option" data-ratio="16:9"><span class="ratio-icon"></span>16:9</button>
+      <button class="ratio-option" data-ratio="9:16"><span class="ratio-icon"></span>9:16</button>
+      <button class="ratio-option" data-ratio="21:9"><span class="ratio-icon"></span>21:9</button>
+      <button class="ratio-option" data-ratio="9:21"><span class="ratio-icon"></span>9:21</button>
+      <button class="ratio-option" data-ratio="3:4"><span class="ratio-icon"></span>3:4</button>
+      <button class="ratio-option" data-ratio="4:3"><span class="ratio-icon"></span>4:3</button>
+      <button class="ratio-option" data-ratio="1:2"><span class="ratio-icon"></span>1:2</button>
+      <button class="ratio-option" data-ratio="2:1"><span class="ratio-icon"></span>2:1</button>
+      <button class="ratio-option" data-ratio="1:3"><span class="ratio-icon"></span>1:3</button>
+      <button class="ratio-option" data-ratio="3:1"><span class="ratio-icon"></span>3:1</button>
+    </div>
+  </div>
+  <div class="auto-section">
+    <div class="auto-label">图像质量</div>
+    <div class="segmented" data-group="quality">
+      <button>低</button><button class="active">中</button><button>高</button>
+    </div>
+  </div>
+  <div class="auto-section">
+    <div class="auto-label">分辨率</div>
+    <div class="segmented" data-group="resolution">
+      <button class="active">1K</button><button>2K</button><button>4K</button>
+    </div>
+  </div>
+</div></div><button class="tool">🔧 技能</button><button class="tool">@</button>
+      </div>
+      <div class="right-tools">
+      <button class="icon-btn mic-btn" type="button" aria-label="语音输入" title="语音输入">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a4 4 0 0 0 4-4V6a4 4 0 1 0-8 0v5.5a4 4 0 0 0 4 4Z"></path><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0"></path><path d="M12 18v3"></path><path d="M9 21h6"></path></svg>
+      </button>
+      <button class="send" type="button" aria-label="发送" title="发送">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"></path><path d="m6.8 10.2 5.2-5.2 5.2 5.2"></path></svg>
+      </button>
+    </div>
+    </div>
+  </section>
+
+  <section class="case-toolbar" aria-label="案例管理">
+    <div><strong>工作流案例</strong><span class="save-status" id="saveStatus" role="status">正在读取本机案例…</span></div>
+    <div class="case-actions">
+      <button class="tool" id="exportCases">导出案例包</button>
+      <label class="tool import-label">导入案例包<input id="importCases" type="file" accept=".aicases" hidden></label>
+      <button class="tool edit-toggle" id="editCases" role="switch" aria-checked="true">编辑案例 · 开</button>
+    </div>
+  </section>
+  <p class="edit-hint" id="editHint">在卡片中上传原始素材和生成效果，上传后自动保存。关闭编辑可预览展示效果。</p>
+  <div class="content-head">
+    <div class="tabs"><button class="tab active" data-tab="image">图片</button><button class="tab" data-tab="video">视频</button></div>
+    <input id="search" class="search" aria-label="搜索工作流" placeholder="搜索工作流">
+  </div>
+  <section class="masonry" id="masonry" aria-label="工作流案例列表"></section>
+  <p id="emptySearch" class="empty-search" hidden>没有找到对应工作流，请换个关键词。</p>
+  <footer class="storage-note">案例保存在当前浏览器中。迁移电脑或清理浏览器前，请先导出案例包。</footer>
+</div>
+
+
+<dialog id="mediaDialog"><div class="dialog-head"><strong id="dialogTitle">查看原始文件</strong><button class="tool" id="closeDialog">关闭</button></div><div id="dialogMedia"></div></dialog>
+<dialog id="importDialog"><h2>导入案例包</h2><p id="importSummary"></p><p>同一工作流的前后素材会按案例包整体替换；包内没有的工作流保持不变。新版案例包同时替换对应提示词模板；旧版案例包保留现有模板。第 3 版案例包同时恢复工作流名称，旧版包保留现有名称。</p><div class="dialog-actions"><button class="tool" id="cancelImport">取消</button><button class="tool primary" id="confirmImport">确认导入</button></div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+</body></html>

@@ -1,0 +1,4 @@
+node_modules/
+tests/results/
+*.aicases
+.DS_Store
