@@ -12,7 +12,7 @@ node preview-server.cjs
 
 打开 http://127.0.0.1:4173/ 。Windows 用户也可运行 `启动本地预览.ps1`。
 
-入口文件：`ai_workflow_prototype_v7_auto_panel.html`。
+入口文件：`public/index.html`。
 
 案例数据保存在当前浏览器中。迁移素材、工作流名称和提示词模板，请在编辑状态导出 `.aicases` 案例包。此项目为交互原型，未接入真实 AI 生成服务。
 
@@ -25,10 +25,15 @@ node preview-server.cjs
 
 ## 项目默认案例
 
-通过 `node preview-server.cjs` 启动并打开本地预览地址。首次访问、且浏览器没有已有案例数据时，自动载入 `defaults/default.aicases`。已有本地名称、素材和模板不会自动覆盖。
+通过 `node preview-server.cjs` 启动并打开本地预览地址。首次访问、且浏览器没有已有案例数据时，自动载入 `public/defaults/default.aicases`。已有本地名称、素材和模板不会自动覆盖。
 
 默认包来自用户提供的 2026-09-09 案例包，保留 16 个名称，按提示词文档更新 11 份模板；5 个待定工作流模板为空。源案例包不含图片或视频，因此卡片初始显示待添加案例。
 
 文档“场景生成”对应卡片“场景风格改变”，“产品四视图白底图生成”对应“产品四视图白底图”。
 
-用户可开启编辑，导入自己的案例包；点击“加载项目默认案例”并确认可恢复项目默认内容。导入只影响当前浏览器。若要让所有新用户使用新版案例，将导出的文件替换为 `defaults/default.aicases` 并提交 GitHub；已有用户可手动加载项目默认案例。不要直接双击 HTML，请通过本地预览服务打开。
+用户可开启编辑，导入自己的案例包；点击“加载项目默认案例”并确认可恢复项目默认内容。导入只影响当前浏览器。若要让所有新用户使用新版案例，将导出的文件替换为 `public/defaults/default.aicases` 并提交 GitHub；已有用户可手动加载项目默认案例。不要直接双击 HTML，请通过本地预览服务打开。
+
+
+## Vercel 静态部署目录
+
+网站文件统一放在 public/，入口为 public/index.html；本地预览服务也读取此目录。仓库 vercel.json 指定 Other、无需构建或安装依赖、输出目录 public。Vercel 项目根目录保持 ./。提交 main 后可通过已连接的 GitHub 集成触发部署。

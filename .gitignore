@@ -3,5 +3,5 @@ tests/results/
 *.aicases
 .DS_Store
 
-!defaults/default.aicases
+!public/defaults/default.aicases
 template-source.txt

@@ -25,7 +25,7 @@ function patchDuration(buffer,ms) {
     await page.waitForFunction(()=>document.getElementById('saveStatus').textContent.includes('0/16'));
     assert.equal(await page.locator('.case-card').count(),10);
     assert.equal(await page.locator('.case-card img,.case-card video').count(),0);
-    const hash = crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'workflows.js'),'utf8').replace(/\r\n/g,'\n')).digest('hex');
+    const hash = crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'public','workflows.js'),'utf8').replace(/\r\n/g,'\n')).digest('hex');
     assert.ok(fs.readFileSync(path.join(root,'执行计划与验收.md'),'utf8').includes(hash));
     const templateStart = await page.evaluate(()=>JSON.stringify(prompts));
     pass('初始清空素材；10 个图片卡片；工作流与提示词校验一致');

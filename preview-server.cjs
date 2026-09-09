@@ -1,9 +1,9 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
-const root = __dirname;
+const root = path.join(__dirname, 'public');
 const port = 4173;
-const main = 'ai_workflow_prototype_v7_auto_panel.html';
+const main = 'index.html';
 const allowed = new Set([main,'defaults/default.aicases','styles.css','cases.css','workflows.js','cases.js','composer.js']);
 const mime = {'.aicases':'application/octet-stream','.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8'};
 const server = http.createServer((req,res) => {
