@@ -4,8 +4,8 @@ const path = require('node:path');
 const root = __dirname;
 const port = 4173;
 const main = 'ai_workflow_prototype_v7_auto_panel.html';
-const allowed = new Set([main,'styles.css','cases.css','workflows.js','cases.js','composer.js']);
-const mime = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8'};
+const allowed = new Set([main,'defaults/default.aicases','styles.css','cases.css','workflows.js','cases.js','composer.js']);
+const mime = {'.aicases':'application/octet-stream','.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8'};
 const server = http.createServer((req,res) => {
   let name;
   try {name = decodeURIComponent(new URL(req.url,'http://localhost').pathname).slice(1) || main;}

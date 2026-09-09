@@ -2,3 +2,6 @@ node_modules/
 tests/results/
 *.aicases
 .DS_Store
+
+!defaults/default.aicases
+template-source.txt

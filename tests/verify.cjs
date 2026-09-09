@@ -21,7 +21,7 @@ function patchDuration(buffer,ms) {
   const page = await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));
   try {
-    const response=await page.goto('http://127.0.0.1:4173'); assert.equal(response.status(),200);
+    await page.route('**/defaults/default.aicases', route=>route.fulfill({status:404,body:''}));const response=await page.goto('http://127.0.0.1:4173'); assert.equal(response.status(),200);
     await page.waitForFunction(()=>document.getElementById('saveStatus').textContent.includes('0/16'));
     assert.equal(await page.locator('.case-card').count(),10);
     assert.equal(await page.locator('.case-card img,.case-card video').count(),0);

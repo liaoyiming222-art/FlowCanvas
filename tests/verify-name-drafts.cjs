@@ -1,7 +1,7 @@
 const {chromium}=require('C:/Users/122305/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const assert=require('node:assert/strict');
 (async()=>{const browser=await chromium.launch({channel:'msedge',headless:true});try{
-const page=await browser.newPage();await page.goto('http://127.0.0.1:4173');await page.waitForFunction(()=>!busy);
+const page=await browser.newPage();await page.route('**/defaults/default.aicases', route=>route.fulfill({status:404,body:''}));await page.goto('http://127.0.0.1:4173');await page.waitForFunction(()=>!busy);
 const input=id=>page.locator(`[data-id="${id}"] .workflow-name-editor input`);
 await input('material').fill('已保存名称');await input('object').fill('尚未保存的物品名称');await input('background').fill('');
 await page.locator('[data-id="material"]').getByText('保存名称',{exact:true}).click();await page.waitForFunction(()=>!busy);

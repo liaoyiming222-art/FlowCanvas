@@ -1,7 +1,7 @@
 const {chromium}=require('C:/Users/122305/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const assert=require('node:assert/strict');const fs=require('node:fs');
 function pack(m){const b=Buffer.from(JSON.stringify(m));const h=Buffer.alloc(12);h.write('AICASES1');h.writeUInt32LE(b.length,8);return Buffer.concat([h,b]);}
-(async()=>{const browser=await chromium.launch({channel:'msedge',headless:true});try{const page=await browser.newPage({acceptDownloads:true});const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:4173');await page.waitForFunction(()=>!busy);
+(async()=>{const browser=await chromium.launch({channel:'msedge',headless:true});try{const page=await browser.newPage({acceptDownloads:true});const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('**/defaults/default.aicases', route=>route.fulfill({status:404,body:''}));await page.goto('http://127.0.0.1:4173');await page.waitForFunction(()=>!busy);
 const toggle=()=>page.locator('#editCases').click();
 await toggle();assert.equal(await page.locator('#exportCases').isVisible(),false);assert.equal(await page.locator('.import-label').isVisible(),false);assert.equal(await page.locator('.use-workflow').count(),0);
 await page.locator('[data-id="material"] .case-stage').click();assert.match(await page.locator('#prompt').inputValue(),/原始场景图/);

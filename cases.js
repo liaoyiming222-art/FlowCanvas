@@ -38,7 +38,7 @@ function saved(message) {
 }
 function lock(value) {
   busy = value; document.body.classList.toggle('saving', value);
-  document.querySelectorAll('[data-mutation], #exportCases, #importCases, #editCases, #confirmImport, #cancelImport').forEach(el => el.disabled = value);
+  document.querySelectorAll('[data-mutation], #exportCases, #loadDefaults, #importCases, #editCases, #confirmImport, #cancelImport').forEach(el => el.disabled = value);
 }
 const dbPromise = new Promise((resolve, reject) => {
   const req = indexedDB.open('ai-workflow-cases', 3);
@@ -302,8 +302,8 @@ async function exportCases() {
     saved(); notify('案例包已生成，包含全部工作流的名称、案例素材和提示词模板。');
   } catch { saved(); notify('案例包导出失败，请重试。'); } finally { lock(false); }
 }
-async function prepareImport(file) {
-  if(!file || busy || !editing) return; lock(true); saveStatus.textContent = '正在校验案例包…';
+async function prepareImport(file, automatic = false) {
+  if(!file || (!automatic && (busy || !editing))) return; lock(true); saveStatus.textContent = '正在校验案例包…';
   try {
     if(file.size < 12) throw new Error('不是有效的案例包。');
     const header = new Uint8Array(await file.slice(0,12).arrayBuffer());
@@ -336,10 +336,12 @@ async function prepareImport(file) {
       imported.push(await inspectFile(blob,asset.name,workflow,asset.side));
     }
     if(12+size+expectedOffset !== file.size) throw new Error('案例包长度不匹配。');
-    pendingImport = { imported, ids:manifest.workflows, promptRecords, nameRecords };
+    const parsed = { imported, ids:manifest.workflows, promptRecords, nameRecords };
+    if (automatic) return parsed;
+    pendingImport = parsed;
     document.getElementById('importSummary').textContent = `已校验 ${manifest.workflows.length} 个工作流、${imported.length} 份素材。${manifest.format >= 2 ? '同时恢复对应提示词模板；第 3 版案例包也恢复工作流名称。' : '这是旧版案例包，现有提示词模板保持不变。'}`;
     document.getElementById('importDialog').showModal(); saved();
-  } catch(err) { pendingImport = null; saved(); notify(`导入未执行：${err.message}`); }
+  } catch(err) { if (automatic) throw err; pendingImport = null; saved(); notify(`导入未执行：${err.message}`); }
   finally { lock(false); }
 }
 async function commitImport() {
@@ -348,7 +350,7 @@ async function commitImport() {
   try {
     const deletes = ids.flatMap(id => [`${id}:before`,`${id}:after`]);
     await writeRecords(imported,deletes,promptRecords,nameRecords);
-    nameRecords.forEach(n => { allWorkflows.find(w => w.id === n.workflowId).name = n.name.trim(); });
+    nameRecords.forEach(n => { allWorkflows.find(w => w.id === n.workflowId).name = n.name.trim(); nameDrafts.delete(n.workflowId); });
     promptRecords.forEach(t => templates.set(t.workflowId,t.content));
     deletes.forEach(key => { release(key); records.delete(key); }); imported.forEach(r => records.set(r.key,r));
     render(); saved(); notify('案例包已导入并保存，素材及包内提示词模板已恢复。'); pendingImport = null; document.getElementById('importDialog').close();
@@ -362,6 +364,7 @@ document.getElementById('editCases').addEventListener('click',() => {
   document.getElementById('editHint').hidden = !editing;
   document.getElementById('exportCases').hidden = !editing;
   document.querySelector('.import-label').hidden = !editing;
+  document.getElementById('loadDefaults').hidden = !editing;
   render();
 });
 document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click',() => {
@@ -369,6 +372,18 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click',()
 }));
 search.addEventListener('input',render);
 window.addEventListener('resize',() => {if(getColumnCount() !== columns) render();});
+async function fetchDefaultPackage() {
+  const response = await fetch('defaults/default.aicases', {cache:'no-store'});
+  if (!response.ok) throw new Error('默认案例包读取失败，请通过本地预览服务打开项目。');
+  return response.blob();
+}
+document.getElementById('loadDefaults').addEventListener('click', async () => {
+  if(busy || !editing) return;
+  lock(true);
+  try { const file = await fetchDefaultPackage(); lock(false); await prepareImport(file); }
+  catch(err) { notify(err.message); }
+  finally { lock(false); }
+});
 document.getElementById('exportCases').addEventListener('click',exportCases);
 document.getElementById('importCases').addEventListener('change',e => {const file = e.target.files[0]; e.target.value = ''; prepareImport(file);});
 document.getElementById('confirmImport').addEventListener('click',commitImport);
@@ -393,7 +408,18 @@ async function initCases() {
       req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error);
     });
     templates = new Map(storedTemplates.map(t => [t.workflowId,t.content]));
-    const stored = await readRecords(); records = new Map(stored.map(r => [r.key,r])); render(); saved(); }
+    const stored = await readRecords(); records = new Map(stored.map(r => [r.key,r]));
+    if (!stored.length && !storedNames.length && !storedTemplates.length) {
+      try {
+        const data = await prepareImport(await fetchDefaultPackage(), true);
+        lock(true);
+        await writeRecords(data.imported, [], data.promptRecords, data.nameRecords);
+        data.nameRecords.forEach(n => { allWorkflows.find(w => w.id === n.workflowId).name = n.name; });
+        templates = new Map(data.promptRecords.map(t => [t.workflowId,t.content]));
+        records = new Map(data.imported.map(r => [r.key,r]));
+      } catch(err) { notify(`默认案例未加载：${err.message} 可在编辑状态重试或导入案例包。`); }
+    }
+    render(); saved(); }
   catch { render(); saveStatus.textContent = '本机保存不可用，请检查浏览器存储权限后刷新。'; saveStatus.classList.add('error'); }
   finally { lock(false); }
 }
