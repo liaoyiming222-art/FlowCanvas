@@ -25,3 +25,14 @@ dialog{border:1px solid var(--line);border-radius:18px;padding:22px;max-width:mi
 .auto-panel .segmented button.active,.auto-panel .ratio-option.active{background:var(--brand-soft);color:#007f95;border-color:#ace4ed}#parameterButton{color:#007f95;background:var(--brand-soft);border-color:#ccebf0}
 @media(max-width:560px){.auto-panel{padding:12px}.auto-panel .ratio-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.case-title{min-width:0;overflow-wrap:anywhere}}
 .auto-panel{background:#fff}.auto-panel .segmented[data-group="count"]{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* Shared upload sizing; checkerboard is confined to the full-screen viewer. */
+.composer{--upload-size:78px;--upload-radius:12px}
+.composer .asset,.composer .upload-main{width:var(--upload-size);height:var(--upload-size);border-radius:var(--upload-radius);box-sizing:border-box;flex-shrink:0}
+@media(max-width:560px){.composer{--upload-size:64px;--upload-radius:10px}}
+#dialogMedia .case-stage,#dialogMedia .preview-layer{background-color:#edf0f2;background-image:conic-gradient(#dce1e5 25%,transparent 0 50%,#dce1e5 0 75%,transparent 0);background-size:20px 20px}
+.preview-layer{position:absolute;inset:0;pointer-events:none}
+.preview-layer + .preview-layer{z-index:1}
+.preview-image-frame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+#dialogMedia .preview-image-frame .comparison-media{background:transparent}
+.preview-image-frame::after{content:'';position:absolute;inset:0;border:1px solid #8a949e;box-sizing:border-box;pointer-events:none;z-index:2}

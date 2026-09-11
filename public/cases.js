@@ -127,6 +127,11 @@ function createMedia(record, className = '') {
   else { el.alt = record.side === 'before' ? '原始素材' : '生成效果'; el.decoding = 'async'; }
   return el;
 }
+function previewLayer(media, record) {
+  const layer=element('div','preview-layer');
+  const frame=element('div','preview-image-frame'); frame.dataset.ratio=record.width/record.height;
+  frame.append(media); layer.append(frame); return layer;
+}
 function showPreview(workflow) {
   document.querySelectorAll('.case-card video').forEach(v => v.pause());
   document.getElementById('dialogTitle').textContent = `${workflow.name} · 全屏预览`;
@@ -235,10 +240,15 @@ function makeCard(workflow, preview = false) {
       const first = createMedia(before,'comparison-media'), second = createMedia(after,'comparison-media after-media');
       second.style.clipPath = 'inset(0 0 0 50%)';
       stage.append(first,second);
+      if(preview) {
+        const left = previewLayer(first,before), right = previewLayer(second,after);
+        second.style.clipPath = ''; stage.replaceChildren(left,right);
+        right.style.clipPath = 'inset(0 0 0 50%)';
+      }
       [first,second].forEach((m,i) => { if(m.tagName === 'VIDEO') videos.push(m); sourceRecords.push(i ? after : before); });
-      attachComparison(stage, second, workflow);
+      attachComparison(stage, preview ? stage.lastElementChild : second, workflow);
     } else {
-      const media = createMedia(base,'comparison-media'); stage.append(media);
+      const media = createMedia(base,'comparison-media'); stage.append(preview ? previewLayer(media,base) : media);
       stage.append(element('span','case-label before',after ? '生成效果' : '原始素材'));
       if (media.tagName === 'VIDEO') videos.push(media); sourceRecords.push(base);
     }
@@ -249,7 +259,19 @@ function makeCard(workflow, preview = false) {
     stage.append(element('span','empty-mark','＋'),element('span','empty-title','待添加案例'),element('span','empty-detail',editing ? '在下方上传前后素材' : '开启编辑案例后添加素材'));
     card.append(stage);
   }
-  if(preview) { card.classList.add('preview-card'); return card; }
+  if(preview) {
+    card.classList.add('preview-card');
+    const observer = new ResizeObserver(() => {
+      const width=stage.clientWidth, height=stage.clientHeight;
+      stage.querySelectorAll('.preview-image-frame').forEach(frame => {
+        const ratio=Number(frame.dataset.ratio);
+        const w=Math.min(width,height*ratio), h=w/ratio;
+        frame.style.width=`${w}px`;frame.style.height=`${h}px`;
+      });
+    });
+    observer.observe(stage); card.previewObserver=observer;
+    return card;
+  }
   const head = element('div','case-heading');
   head.append(button(workflow.name,() => selectWorkflow(workflow),'case-title'));
   if(base) head.append(button('全屏预览',() => showPreview(workflow),'preview-button'));
@@ -413,7 +435,7 @@ document.getElementById('cancelImport').addEventListener('click',() => document.
 document.getElementById('importDialog').addEventListener('cancel',e => {if(busy) e.preventDefault();});
 document.getElementById('importDialog').addEventListener('close',() => pendingImport = null);
 document.getElementById('closeDialog').addEventListener('click',() => document.getElementById('mediaDialog').close());
-document.getElementById('mediaDialog').addEventListener('close',() => { document.querySelectorAll('#dialogMedia video').forEach(v => v.pause()); document.getElementById('dialogMedia').replaceChildren(); });
+document.getElementById('mediaDialog').addEventListener('close',() => { document.querySelector('#dialogMedia .preview-card')?.previewObserver?.disconnect(); document.querySelectorAll('#dialogMedia video').forEach(v => v.pause()); document.getElementById('dialogMedia').replaceChildren(); });
 document.addEventListener('visibilitychange',() => {if(document.hidden) document.querySelectorAll('video').forEach(v => v.pause());});
 window.addEventListener('beforeunload',e => {if(busy) {e.preventDefault(); e.returnValue = '';}});
 async function initCases() {
