@@ -38,30 +38,34 @@ composer.addEventListener("drop",e=>addFiles(e.dataTransfer.files));
 window.addEventListener("beforeunload",()=>urls.forEach(URL.revokeObjectURL));
 
 
-document.addEventListener("DOMContentLoaded",()=>{
-  const panel=document.getElementById("autoPanel");
-  if(!panel)return;
-  const wrap=panel.closest(".auto-wrap");
-  const trigger=wrap.querySelector("button");
-  trigger.addEventListener("click",(e)=>{
-    e.stopPropagation();
-    panel.classList.toggle("open");
-  });
-  panel.addEventListener("click",e=>e.stopPropagation());
-  document.addEventListener("click",()=>panel.classList.remove("open"));
-
-  panel.querySelectorAll(".ratio-option").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      panel.querySelectorAll(".ratio-option").forEach(x=>x.classList.remove("active"));
-      btn.classList.add("active");
-    });
-  });
-  panel.querySelectorAll(".segmented").forEach(group=>{
-    group.querySelectorAll("button").forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        group.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
-        btn.classList.add("active");
-      });
-    });
-  });
+const generationSettings = {ratio:'智能',resolution:'1K',count:1};
+const panel=document.getElementById('autoPanel'), parameterButton=document.getElementById('parameterButton');
+function positionParameters() {
+  if(!panel.classList.contains('open'))return;
+  const r=parameterButton.getBoundingClientRect();
+  panel.style.left = `${Math.max(12,Math.min(r.left,innerWidth-panel.offsetWidth-12))}px`;
+  panel.style.top = `${r.bottom+8}px`;
+  panel.style.maxHeight = `${Math.max(80,innerHeight-r.bottom-20)}px`;
+}
+function closeParameters(){ panel.classList.remove('open'); parameterButton.setAttribute('aria-expanded','false'); }
+parameterButton.addEventListener('click',e=>{
+  e.stopPropagation(); panel.classList.toggle('open');
+  parameterButton.setAttribute('aria-expanded',String(panel.classList.contains('open'))); positionParameters();
 });
+panel.addEventListener('click',e=>e.stopPropagation());
+document.addEventListener('click',closeParameters);
+document.addEventListener('keydown',e=>{if(e.key==='Escape' && panel.classList.contains('open')){closeParameters();parameterButton.focus();}});
+window.addEventListener('resize',positionParameters);window.addEventListener('scroll',positionParameters,true);
+function updateParameters(){
+  parameterButton.textContent=`${generationSettings.ratio} · ${generationSettings.resolution} · ${generationSettings.count}`;
+  panel.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.classList.contains('active'))));
+}
+panel.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+  const group=btn.closest('.ratio-grid,.segmented');
+  group.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b===btn));
+  if(btn.dataset.ratio)generationSettings.ratio=btn.dataset.ratio;
+  else if(group.dataset.group==='count')generationSettings.count=Number(btn.textContent);
+  else generationSettings.resolution=btn.textContent;
+  updateParameters();positionParameters();
+}));
+updateParameters();

@@ -16,49 +16,14 @@
     <div class="composer-bottom">
       <div class="left-tools">
         <div class="tool mode" id="modeBtn">
-          <span id="modeLabel">Agent 模式</span>⌄
+          <span id="modeLabel">Agent 模式</span>
           <div class="mode-menu">
             <div class="mode-item active" data-mode="agent">Agent 模式 <span>✓</span></div>
             <div class="mode-item" data-mode="image">图片生成</div>
             <div class="mode-item" data-mode="video">视频生成</div>
           </div>
         </div>
-        <div class="auto-wrap"><button class="tool">☷ 自动</button>
-<div class="auto-panel" id="autoPanel">
-  <div class="auto-section">
-    <div class="auto-label">比例</div>
-    <div class="ratio-grid" id="ratioGrid">
-      <button class="ratio-option active" data-ratio="自适应"><span class="ratio-icon"></span>自适应</button>
-      <button class="ratio-option" data-ratio="1:1"><span class="ratio-icon"></span>1:1</button>
-      <button class="ratio-option" data-ratio="2:3"><span class="ratio-icon"></span>2:3</button>
-      <button class="ratio-option" data-ratio="3:2"><span class="ratio-icon"></span>3:2</button>
-      <button class="ratio-option" data-ratio="4:5"><span class="ratio-icon"></span>4:5</button>
-      <button class="ratio-option" data-ratio="5:4"><span class="ratio-icon"></span>5:4</button>
-      <button class="ratio-option" data-ratio="16:9"><span class="ratio-icon"></span>16:9</button>
-      <button class="ratio-option" data-ratio="9:16"><span class="ratio-icon"></span>9:16</button>
-      <button class="ratio-option" data-ratio="21:9"><span class="ratio-icon"></span>21:9</button>
-      <button class="ratio-option" data-ratio="9:21"><span class="ratio-icon"></span>9:21</button>
-      <button class="ratio-option" data-ratio="3:4"><span class="ratio-icon"></span>3:4</button>
-      <button class="ratio-option" data-ratio="4:3"><span class="ratio-icon"></span>4:3</button>
-      <button class="ratio-option" data-ratio="1:2"><span class="ratio-icon"></span>1:2</button>
-      <button class="ratio-option" data-ratio="2:1"><span class="ratio-icon"></span>2:1</button>
-      <button class="ratio-option" data-ratio="1:3"><span class="ratio-icon"></span>1:3</button>
-      <button class="ratio-option" data-ratio="3:1"><span class="ratio-icon"></span>3:1</button>
-    </div>
-  </div>
-  <div class="auto-section">
-    <div class="auto-label">图像质量</div>
-    <div class="segmented" data-group="quality">
-      <button>低</button><button class="active">中</button><button>高</button>
-    </div>
-  </div>
-  <div class="auto-section">
-    <div class="auto-label">分辨率</div>
-    <div class="segmented" data-group="resolution">
-      <button class="active">1K</button><button>2K</button><button>4K</button>
-    </div>
-  </div>
-</div></div><button class="tool">🔧 技能</button><button class="tool">@</button>
+<div class="auto-wrap"><button type="button" class="tool" id="parameterButton" aria-expanded="false" aria-controls="autoPanel">智能 · 1K · 1</button><div class="auto-panel" id="autoPanel"><div class="auto-label">选择比例</div><div class="ratio-grid"><button class="ratio-option active" data-ratio="智能"><span class="ratio-icon"></span>智能</button><button class="ratio-option " data-ratio="1:1"><span class="ratio-icon"></span>1:1</button><button class="ratio-option " data-ratio="3:4"><span class="ratio-icon"></span>3:4</button><button class="ratio-option " data-ratio="16:9"><span class="ratio-icon"></span>16:9</button><button class="ratio-option " data-ratio="4:3"><span class="ratio-icon"></span>4:3</button><button class="ratio-option " data-ratio="9:16"><span class="ratio-icon"></span>9:16</button><button class="ratio-option " data-ratio="2:3"><span class="ratio-icon"></span>2:3</button><button class="ratio-option " data-ratio="3:2"><span class="ratio-icon"></span>3:2</button><button class="ratio-option " data-ratio="21:9"><span class="ratio-icon"></span>21:9</button></div><div class="auto-label">选择分辨率</div><div class="segmented" data-group="resolution"><button class="active">1K</button><button>2K</button><button>4K</button></div><div class="auto-label">选择生成数量</div><div class="segmented" data-group="count"><button class="active">1</button><button>2</button><button>3</button><button>4</button></div></div></div>
       </div>
       <div class="right-tools">
       <button class="icon-btn mic-btn" type="button" aria-label="语音输入" title="语音输入">

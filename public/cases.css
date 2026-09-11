@@ -10,3 +10,18 @@ dialog{border:1px solid var(--line);border-radius:18px;padding:22px;max-width:mi
 .case-card[tabindex]{cursor:pointer}.case-card[tabindex]:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
 
 .workflow-name-editor{display:flex;gap:8px;padding:8px 12px 0;align-items:center}.workflow-name-editor input{min-width:0;width:0;flex:1;border:1px solid var(--line);border-radius:6px;padding:7px;font-size:13px}.workflow-name-editor button{flex-shrink:0}
+
+/* Comparison controls and browser-sized preview. */
+.compare-handle{position:absolute;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border:1px solid #d5e6ea;border-radius:50%;background:white;color:#007f95;box-shadow:0 2px 10px #0002;z-index:6;cursor:ew-resize;touch-action:none;padding:0;font-size:22px}
+.case-label{overflow:hidden;white-space:nowrap;box-sizing:border-box;transition:opacity .08s linear}
+.preview-button{border:0;background:none;color:#008ba2;white-space:nowrap;cursor:pointer;font-size:13px;padding:5px 0}
+#mediaDialog{width:calc(100vw - 24px);height:calc(100dvh - 24px);max-width:none;max-height:none;box-sizing:border-box;padding:16px}
+#mediaDialog[open]{display:flex;flex-direction:column}#dialogMedia{flex:1;min-height:0;display:flex;flex-direction:column}
+#dialogMedia .preview-card{display:flex;flex-direction:column;flex:1;min-height:0;border:0;box-shadow:none;padding:0}
+#dialogMedia .case-stage{flex:1;min-height:0;aspect-ratio:auto!important}#dialogMedia .comparison-media{max-width:none;max-height:none;margin:0}
+#dialogMedia .playback{flex-shrink:0}.dialog-head{flex-shrink:0}
+.auto-panel{position:fixed;bottom:auto;right:auto;width:460px;max-width:calc(100vw - 24px);box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;z-index:100;padding:18px}
+.auto-panel .ratio-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.auto-panel .auto-label{margin:12px 0 8px}.auto-panel .auto-label:first-child{margin-top:0}
+.auto-panel .segmented button.active,.auto-panel .ratio-option.active{background:var(--brand-soft);color:#007f95;border-color:#ace4ed}#parameterButton{color:#007f95;background:var(--brand-soft);border-color:#ccebf0}
+@media(max-width:560px){.auto-panel{padding:12px}.auto-panel .ratio-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.case-title{min-width:0;overflow-wrap:anywhere}}
+.auto-panel{background:#fff}.auto-panel .segmented[data-group="count"]{grid-template-columns:repeat(4,minmax(0,1fr))}

@@ -127,12 +127,40 @@ function createMedia(record, className = '') {
   else { el.alt = record.side === 'before' ? '原始素材' : '生成效果'; el.decoding = 'async'; }
   return el;
 }
-function showOriginal(workflow, record) {
-  const dialog = document.getElementById('mediaDialog');
+function showPreview(workflow) {
   document.querySelectorAll('.case-card video').forEach(v => v.pause());
-  document.getElementById('dialogTitle').textContent = `${workflow.name} · ${record.side === 'before' ? '原始素材' : '生成效果'} · ${record.width} × ${record.height}`;
-  const media = createMedia(record); if (media.tagName === 'VIDEO') media.controls = true;
-  document.getElementById('dialogMedia').replaceChildren(media); dialog.showModal();
+  document.getElementById('dialogTitle').textContent = `${workflow.name} · 全屏预览`;
+  document.getElementById('dialogMedia').replaceChildren(makeCard(workflow, true));
+  document.getElementById('mediaDialog').showModal();
+}
+function attachComparison(stage, afterMedia, workflow) {
+  const divider = element('div','case-divider');
+  const grip = element('button','compare-handle','↔'); grip.type = 'button';
+  grip.setAttribute('role','slider'); grip.setAttribute('aria-label',`${workflow.name}前后对比分割位置`);
+  grip.setAttribute('aria-valuemin','0'); grip.setAttribute('aria-valuemax','100');
+  const beforeLabel = element('span','case-label before','修改前');
+  const afterLabel = element('span','case-label after','修改后');
+  let value = 50, dragging = false;
+  function update(next) {
+    value = Math.max(0,Math.min(100,next));
+    stage.dataset.split = value;
+    afterMedia.style.clipPath = `inset(0 0 0 ${value}%)`;
+    divider.style.left = `${value}%`; grip.style.left = `${value}%`;
+    grip.setAttribute('aria-valuenow',String(Math.round(value)));
+    beforeLabel.style.opacity = Math.min(1,value/20); afterLabel.style.opacity = Math.min(1,(100-value)/20);
+    beforeLabel.hidden = value === 0; afterLabel.hidden = value === 100;
+    beforeLabel.style.maxWidth = `calc(${value}% - 16px)`;
+    afterLabel.style.maxWidth = `calc(${100-value}% - 16px)`;
+  }
+  grip.addEventListener('pointerdown',e => { e.preventDefault(); e.stopPropagation(); dragging=true; grip.setPointerCapture(e.pointerId); });
+  grip.addEventListener('pointermove',e => { if(!dragging)return; const r=stage.getBoundingClientRect(); update((e.clientX-r.left)/r.width*100); });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>grip.addEventListener(type,()=>dragging=false));
+  grip.addEventListener('click',e=>e.stopPropagation());
+  grip.addEventListener('keydown',e=>{
+    const next={ArrowLeft:value-2,ArrowRight:value+2,Home:0,End:100}[e.key];
+    if(next!==undefined){e.preventDefault();e.stopPropagation();update(next);}
+  });
+  stage.append(beforeLabel,afterLabel,divider,grip); update(50);
 }
 function attachPlayback(container, videos, assetRecords) {
   if (!videos.length) return;
@@ -161,7 +189,7 @@ function attachPlayback(container, videos, assetRecords) {
   videos.forEach(v => v.addEventListener('ended',() => { videos.forEach(x => x.pause()); refresh(); }));
   controls.append(toggle,seek,time); container.append(controls); refresh();
   if (videos.length === 2 && Math.abs(assetRecords[0].duration-assetRecords[1].duration) > .2)
-    container.append(element('p','media-note','时长不同，对比播放到较短视频结束；可分别查看完整视频。'));
+    container.append(element('p','media-note','时长不同，对比播放到较短视频结束；对比播放同步停止。'));
 }
 function uploadSlot(workflow, side, record) {
   const slot = element('div','upload-slot');
@@ -194,7 +222,7 @@ async function renameWorkflow(workflow, input) {
   } catch { notify('名称保存失败，原名称已保留。'); }
   finally { lock(false); }
 }
-function makeCard(workflow) {
+function makeCard(workflow, preview = false) {
   const card = element('article','case-card'); card.dataset.id = workflow.id;
   card.classList.toggle('selected',selectedId === workflow.id);
   const before = records.get(`${workflow.id}:before`), after = records.get(`${workflow.id}:after`);
@@ -208,28 +236,23 @@ function makeCard(workflow) {
       second.style.clipPath = 'inset(0 0 0 50%)';
       stage.append(first,second);
       [first,second].forEach((m,i) => { if(m.tagName === 'VIDEO') videos.push(m); sourceRecords.push(i ? after : before); });
-      const divider = element('div','case-divider'); divider.style.left = '50%'; divider.append(element('span','case-grip','↔'));
-      const range = element('input','compare-slider'); range.type = 'range'; range.min = 0; range.max = 100; range.value = 50;
-      range.setAttribute('aria-label',`${workflow.name}前后对比分割位置`);
-      range.addEventListener('input', () => { second.style.clipPath = `inset(0 0 0 ${range.value}%)`; divider.style.left = `${range.value}%`; });
-      stage.append(element('span','case-label before','修改前'),element('span','case-label after','修改后'),divider,range);
+      attachComparison(stage, second, workflow);
     } else {
       const media = createMedia(base,'comparison-media'); stage.append(media);
       stage.append(element('span','case-label before',after ? '生成效果' : '原始素材'));
       if (media.tagName === 'VIDEO') videos.push(media); sourceRecords.push(base);
     }
     card.append(stage); attachPlayback(card,videos,sourceRecords);
-    const originals = element('div','original-actions');
-    if(before) originals.append(button('查看原始素材',() => showOriginal(workflow,before)));
-    if(after) originals.append(button('查看生成效果',() => showOriginal(workflow,after)));
-    card.append(originals);
+
   } else {
     stage.classList.add('case-empty');
     stage.append(element('span','empty-mark','＋'),element('span','empty-title','待添加案例'),element('span','empty-detail',editing ? '在下方上传前后素材' : '开启编辑案例后添加素材'));
     card.append(stage);
   }
+  if(preview) { card.classList.add('preview-card'); return card; }
   const head = element('div','case-heading');
-  head.append(button(workflow.name,() => selectWorkflow(workflow),'case-title'),button('使用 →',() => selectWorkflow(workflow),'use-workflow'));
+  head.append(button(workflow.name,() => selectWorkflow(workflow),'case-title'));
+  if(base) head.append(button('全屏预览',() => showPreview(workflow),'preview-button'));
   card.append(head);
   if (editing) {
     const form = element('form','workflow-name-editor');
@@ -244,7 +267,6 @@ function makeCard(workflow) {
     form.append(input,save); card.append(form);
   }
   if (!editing) {
-    head.querySelector('.use-workflow').remove();
     card.tabIndex = 0;
     card.setAttribute('aria-label', `${workflow.name}，使用提示词模板`);
     let origin = null, dragged = false;
