@@ -8,7 +8,7 @@ function setMode(mode){
 }
 
 const modeBtn=document.getElementById("modeBtn");
-modeBtn.addEventListener("click",e=>{e.stopPropagation();modeBtn.classList.toggle("open")});
+modeBtn.addEventListener("click",e=>{e.stopPropagation();closeParameters();modeBtn.classList.toggle("open")});
 document.querySelectorAll(".mode-item").forEach(el=>el.addEventListener("click",e=>{e.stopPropagation();setMode(el.dataset.mode);modeBtn.classList.remove("open")}));
 document.addEventListener("click",()=>modeBtn.classList.remove("open"));
 
@@ -49,12 +49,16 @@ function positionParameters() {
 }
 function closeParameters(){ panel.classList.remove('open'); parameterButton.setAttribute('aria-expanded','false'); }
 parameterButton.addEventListener('click',e=>{
-  e.stopPropagation(); panel.classList.toggle('open');
+  e.stopPropagation(); modeBtn.classList.remove('open'); panel.classList.toggle('open');
   parameterButton.setAttribute('aria-expanded',String(panel.classList.contains('open'))); positionParameters();
 });
 panel.addEventListener('click',e=>e.stopPropagation());
 document.addEventListener('click',closeParameters);
-document.addEventListener('keydown',e=>{if(e.key==='Escape' && panel.classList.contains('open')){closeParameters();parameterButton.focus();}});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(panel.classList.contains('open')){closeParameters();parameterButton.focus();}
+  modeBtn.classList.remove('open');
+});
 window.addEventListener('resize',positionParameters);window.addEventListener('scroll',positionParameters,true);
 function updateParameters(){
   parameterButton.textContent=`${generationSettings.ratio} · ${generationSettings.resolution} · ${generationSettings.count}`;
